@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/saulgood04/se_project_express#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongoose": "^8.21.0"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
