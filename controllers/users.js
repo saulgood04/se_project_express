@@ -8,9 +8,7 @@ const {
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
-    });
+    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send({ message: err.message }));
 };
 
 const createUser = (req, res) => {
