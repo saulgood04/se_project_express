@@ -2,11 +2,9 @@ const ClothingItem = require("../models/clothingItem");
 const { BAD_REQUEST = 400, NOT_FOUND = 404, INTERNAL_SERVER_ERROR = 500 } = require("../utils/errors");
 
 const createItem = (req, res) => {
-  const { name, weather, imageUrl, imageURL } = req.body;
+  const { name, weather, imageUrl } = req.body;
 
-  const imageURLValue = imageURL || imageUrl;
-
-  ClothingItem.create({ name, weather, imageURL: imageURLValue })
+  ClothingItem.create({ name, weather, imageUrl })
   .then((item) => {
     res.status(201).send({ data: item });
   })
@@ -29,9 +27,9 @@ const getItems = (req, res) => {
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageURL } = req.body;
+  const { imageUrl } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } }, { new: true })
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
