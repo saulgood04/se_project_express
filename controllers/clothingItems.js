@@ -1,17 +1,21 @@
 const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
+  const { name, weather, imageUrl, imageURL } = req.body;
 
 
-  const { name, weather, imageURL } = req.body;
+  const imageURLValue = imageURL || imageUrl;
 
-  ClothingItem.create({ name, weather, imageURL })
+  ClothingItem.create({ name, weather, imageURL: imageURLValue })
     .then((item) => {
-
-      res.send({ data: item });
+      res.status(201).send(item);
     })
     .catch((e) => {
-      res.status(500).send({ message: "error from createItem", e });
+      if (e.name === 'ValidationError') {
+        res.status(400).send({ message: "error from createItem", e });
+      } else {
+        res.status(500).send({ message: "error from createItem", e });
+      }
     });
 };
 
@@ -31,20 +35,31 @@ const updateItem = (req, res) => {
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
-      res.status(500).send({ message: "Error from updateItem", e });
-    });
+  if (e.name === 'CastError') {
+    res.status(400).send({ message: "Error from updateItem", e });
+  } else if (e.name === 'DocumentNotFoundError') {
+    res.status(404).send({ message: "Error from updateItem", e });
+  } else {
+    res.status(500).send({ message: "Error from updateItem", e });
+  }
+});
 };
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(204).send({}))
+    .then(() => res.status(200).send({}))
     .catch((e) => {
-      res.status(500).send({ message: "Error from deleteItem", e });
-    });
+  if (e.name === 'CastError') {
+    res.status(400).send({ message: "Error from deleteItem", e });
+  } else if (e.name === 'DocumentNotFoundError') {
+    res.status(404).send({ message: "Error from deleteItem", e });
+  } else {
+    res.status(500).send({ message: "Error from deleteItem", e });
+  }
+});
 };
 
 const likeItem = (req, res) => {
@@ -59,8 +74,14 @@ const likeItem = (req, res) => {
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
-      res.status(500).send({ message: "Error from likeItem", e });
-    });
+  if (e.name === 'CastError') {
+    res.status(400).send({ message: "Error from likeItem", e });
+  } else if (e.name === 'DocumentNotFoundError') {
+    res.status(404).send({ message: "Error from likeItem", e });
+  } else {
+    res.status(500).send({ message: "Error from likeItem", e });
+  }
+});
 };
 
 const dislikeItem = (req, res) => {
@@ -75,8 +96,21 @@ const dislikeItem = (req, res) => {
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
-      res.status(500).send({ message: "Error from dislikeItem", e });
-    });
+  if (e.name === 'CastError') {
+    res.status(400).send({ message: "Error from dislikeItem", e });
+  } else if (e.name === 'DocumentNotFoundError') {
+    res.status(404).send({ message: "Error from dislikeItem", e });
+  } else {
+    res.status(500).send({ message: "Error from dislikeItem", e });
+  }
+});
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem, likeItem, dislikeItem };
+module.exports = {
+  createItem,
+  getItems,
+  updateItem,
+  deleteItem,
+  likeItem,
+  dislikeItem,
+};
