@@ -3,9 +3,9 @@ const ClothingItem = require("../models/clothingItem");
 const createItem = (req, res) => {
 
 
-  const { name, weather, imageUrl } = req.body;
+  const { name, weather, imageURL } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageURL })
     .then((item) => {
 
       res.send({ data: item });
@@ -25,9 +25,9 @@ const getItems = (req, res) => {
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageUrl } = req.body;
+  const { imageURL } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } }, { new: true })
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) => {
