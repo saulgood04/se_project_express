@@ -1,28 +1,27 @@
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require("../utils/errors");
+const { BAD_REQUEST = 400, NOT_FOUND = 404, INTERNAL_SERVER_ERROR = 500 } = require("../utils/errors");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl, imageURL } = req.body;
 
-
   const imageURLValue = imageURL || imageUrl;
 
   ClothingItem.create({ name, weather, imageURL: imageURLValue })
-    .then((item) => {
-      res.status(201).send(item);
-    })
-    .catch((e) => {
-      if (e.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: e.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: "An error has occurred on the server" });
-      }
-    });
+  .then((item) => {
+    res.status(201).send({ data: item });
+  })
+  .catch((e) => {
+    if (e.name === 'ValidationError') {
+      res.status(400).send({ message: e.message });
+    } else {
+      res.status(500).send({ message: "An error has occurred on the server" });
+    }
+  });
 };
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.status(200).send({ data: items }))
     .catch(() => {
       res.status(INTERNAL_SERVER_ERROR).send({ message: "An error has occurred on the server" });
     });
