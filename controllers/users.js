@@ -1,10 +1,10 @@
+const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
-const bcrypt = require("bcrypt");
 
 const getUsers = (req, res) => {
   User.find({})
