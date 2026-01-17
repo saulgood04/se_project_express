@@ -4,6 +4,7 @@ const {
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
+const bcrypt = require("bcrypt");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -15,16 +16,20 @@ const getUsers = (req, res) => {
     );
 };
 
-const createUser = (req, res) => {
-  const { name, avatar } = req.body;
+const createUser = async (req, res) => {
+  const { name, avatar, email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-  User.create({ name, avatar })
+  User.create({ name, avatar, email, password: hashedPassword })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST)
           .send({ message: "An error has occurred on the server" });
+      }
+      if (err.code === 11000) {
+        return res.status(409).json({ message: "Email already exists" });
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
