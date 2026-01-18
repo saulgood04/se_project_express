@@ -20,27 +20,32 @@ const getUsers = (req, res) => {
 
 const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
 
-  User.create({ name, avatar, email, password: hashedPassword })
-    .then((user) => {
-      const userObject = user.toObject();
-      delete userObject.password;
-      res.status(201).send(userObject);
-    })
-    .catch((err) => {
-      if (err.name === "ValidationError") {
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    User.create({ name, avatar, email, password: hashedPassword })
+      .then((user) => {
+        const userObject = user.toObject();
+        delete userObject.password;
+        res.status(201).send(userObject);
+      })
+      .catch((err) => {
+        if (err.name === "ValidationError") {
+          return res
+            .status(BAD_REQUEST)
+            .send({ message: "An error has occurred on the server" });
+        }
+        if (err.code === 11000) {
+          return res.status(409).json({ message: "Email already exists" });
+        }
         return res
-          .status(BAD_REQUEST)
+          .status(INTERNAL_SERVER_ERROR)
           .send({ message: "An error has occurred on the server" });
-      }
-      if (err.code === 11000) {
-        return res.status(409).json({ message: "Email already exists" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
+      });
+  } catch (err) {
+    return res.status(500).send({ message: "An error has occurred on the server" });
+  }
 };
 
 const login = (req, res) => {
