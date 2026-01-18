@@ -20,6 +20,7 @@ app.use(cors());
 app.post('/signin', login);
 app.post('/signup', createUser);
 app.use("/users", require("./routes/users"));
+
 app.use("/", auth, mainRouter);
 
 app.listen(PORT, () => {});

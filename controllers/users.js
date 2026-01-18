@@ -24,12 +24,13 @@ const createUser = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    User.create({ name, avatar, email, password: hashedPassword })
+    return User.create({ name, avatar, email, password: hashedPassword })
       .then((user) => {
         const userObject = user.toObject();
         delete userObject.password;
         res.status(201).send(userObject);
       })
+
       .catch((err) => {
         if (err.name === "ValidationError") {
           return res
@@ -44,7 +45,9 @@ const createUser = async (req, res) => {
           .send({ message: "An error has occurred on the server" });
       });
   } catch (err) {
-    return res.status(500).send({ message: "An error has occurred on the server" });
+    return res
+      .status(500)
+      .send({ message: "An error has occurred on the server" });
   }
 };
 
@@ -67,7 +70,9 @@ const login = (req, res) => {
       if (err.message === "Incorrect email or password") {
         return res.status(401).json({ message: "Incorrect email or password" });
       }
-      return res.status(500).json({ message: "An error has occurred on the server" });
+      return res
+        .status(500)
+        .json({ message: "An error has occurred on the server" });
     });
 };
 
