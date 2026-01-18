@@ -23,7 +23,11 @@ const createUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   User.create({ name, avatar, email, password: hashedPassword })
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      const userObject = user.toObject();
+      delete userObject.password;
+      res.status(201).send(userObject);
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res
@@ -49,7 +53,7 @@ const login = (req, res) => {
       res.send({ token });
     })
 
-    .catch((err) => {
+    .catch(() => {
       res.status(401).send({ message: "Incorrect email or password" });
     });
 };
@@ -87,5 +91,34 @@ const getCurrentUser = (req, res) => {
     });
 };
 
+const updateCurrentUser = (req, res) => {
+  const userId = req.user._id;
+  const { name, avatar } = req.body;
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .orFail()
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
 
-module.exports = { getUsers, createUser, getUser, login, getCurrentUser };
+module.exports = {
+  getUsers,
+  createUser,
+  getUser,
+  login,
+  getCurrentUser,
+  updateCurrentUser,
+};
