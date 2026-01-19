@@ -15,9 +15,7 @@ const createItem = (req, res) => {
     })
     .catch((e) => {
       if (e.name === "ValidationError") {
-        res
-          .status(BAD_REQUEST)
-          .send({ message: "Validation failed" });
+        res.status(BAD_REQUEST).send({ message: "Validation failed" });
       } else {
         res
           .status(500)
@@ -43,16 +41,32 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== req.user._id.toString()) {
-        return res.status(FORBIDDEN).send({ message: "You do not have permission to perform this action" });
+        return res
+          .status(FORBIDDEN)
+          .send({
+            message: "You do not have permission to perform this action",
+          });
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })
-    .then(() => res.status(200).send({ message: "Item successfully deleted" }))
+    .then((deletedItem) => {
+      if (deletedItem) {
+        res.status(200).send({ message: "Item successfully deleted" });
+      } else {
+        res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+    })
     .catch((e) => {
       if (e.name === "CastError") {
         res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
       } else if (e.name === "DocumentNotFoundError") {
         res.status(NOT_FOUND).send({ message: "Item not found" });
+      } else if (e.statusCode === FORBIDDEN) {
+        res
+          .status(FORBIDDEN)
+          .send({
+            message: "You do not have permission to perform this action",
+          });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR)

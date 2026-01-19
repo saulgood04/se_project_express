@@ -35,12 +35,10 @@ const createUser = async (req, res) => {
 
       .catch((err) => {
         if (err.name === "ValidationError") {
-          return res
-            .status(BAD_REQUEST)
-            .send({ message: "An error has occurred on the server" });
+          return res.status(BAD_REQUEST).send({ message: "Invalid data" });
         }
         if (err.code === 11000) {
-          return res.status(CONFLICT).json({ message: "Email already exists" });
+          return res.status(CONFLICT).send({ message: "Email already exists" });
         }
         return res
           .status(INTERNAL_SERVER_ERROR)
@@ -57,7 +55,9 @@ const login = (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).json({ message: "Email and password are required" });
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
   }
 
   return User.findUserByCredentials(email, password)
@@ -65,30 +65,14 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.send({ token });
+      res.status(200).send({ token });
     })
     .catch((err) => {
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        return res.status(UNAUTHORIZED).json({ message: "Incorrect email or password" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .json({ message: "An error has occurred on the server" });
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Incorrect email or password" });
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
@@ -137,7 +121,6 @@ const updateCurrentUser = (req, res) => {
 module.exports = {
   getUsers,
   createUser,
-  getUser,
   login,
   getCurrentUser,
   updateCurrentUser,
