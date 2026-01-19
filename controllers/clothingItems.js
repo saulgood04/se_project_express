@@ -1,6 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
 const {
   BAD_REQUEST = 400,
+  FORBIDDEN = 403,
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
 } = require("../utils/errors");
@@ -15,8 +16,8 @@ const createItem = (req, res) => {
     .catch((e) => {
       if (e.name === "ValidationError") {
         res
-          .status(400)
-          .send({ message: "An error has occurred on the server" });
+          .status(BAD_REQUEST)
+          .send({ message: "Validation failed" });
       } else {
         res
           .status(500)
@@ -42,7 +43,7 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== req.user._id.toString()) {
-        return res.status(403).send({ message: "Access denied" });
+        return res.status(FORBIDDEN).send({ message: "You do not have permission to perform this action" });
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })

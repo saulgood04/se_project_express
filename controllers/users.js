@@ -6,6 +6,8 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  CONFLICT,
+  UNAUTHORIZED,
 } = require("../utils/errors");
 
 const getUsers = (req, res) => {
@@ -38,7 +40,7 @@ const createUser = async (req, res) => {
             .send({ message: "An error has occurred on the server" });
         }
         if (err.code === 11000) {
-          return res.status(409).json({ message: "Email already exists" });
+          return res.status(CONFLICT).json({ message: "Email already exists" });
         }
         return res
           .status(INTERNAL_SERVER_ERROR)
@@ -46,7 +48,7 @@ const createUser = async (req, res) => {
       });
   } catch (err) {
     return res
-      .status(500)
+      .status(INTERNAL_SERVER_ERROR)
       .send({ message: "An error has occurred on the server" });
   }
 };
@@ -55,7 +57,7 @@ const login = (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
+    return res.status(BAD_REQUEST).json({ message: "Email and password are required" });
   }
 
   return User.findUserByCredentials(email, password)
@@ -68,10 +70,10 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        return res.status(401).json({ message: "Incorrect email or password" });
+        return res.status(UNAUTHORIZED).json({ message: "Incorrect email or password" });
       }
       return res
-        .status(500)
+        .status(INTERNAL_SERVER_ERROR)
         .json({ message: "An error has occurred on the server" });
     });
 };
