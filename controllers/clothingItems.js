@@ -1,4 +1,6 @@
 const ClothingItem = require("../models/clothingItem");
+const express = require("express");
+const router = express.Router();
 const {
   BAD_REQUEST = 400,
   FORBIDDEN = 403,
@@ -41,11 +43,9 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== req.user._id.toString()) {
-        return res
-          .status(FORBIDDEN)
-          .send({
-            message: "You do not have permission to perform this action",
-          });
+        return res.status(FORBIDDEN).send({
+          message: "You do not have permission to perform this action",
+        });
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })
@@ -62,11 +62,9 @@ const deleteItem = (req, res) => {
       } else if (e.name === "DocumentNotFoundError") {
         res.status(NOT_FOUND).send({ message: "Item not found" });
       } else if (e.statusCode === FORBIDDEN) {
-        res
-          .status(FORBIDDEN)
-          .send({
-            message: "You do not have permission to perform this action",
-          });
+        res.status(FORBIDDEN).send({
+          message: "You do not have permission to perform this action",
+        });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR)
@@ -123,11 +121,10 @@ const dislikeItem = (req, res) => {
     });
 };
 
-module.exports = {
-  createItem,
-  getItems,
+router.post("/", createItem);
+router.get("/", getItems);
+router.delete("/:itemId", deleteItem);
+router.put("/:itemId/likes", likeItem);
+router.delete("/:itemId/likes", dislikeItem);
 
-  deleteItem,
-  likeItem,
-  dislikeItem,
-};
+module.exports = router;
