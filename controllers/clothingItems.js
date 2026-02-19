@@ -122,10 +122,10 @@ const dislikeItem = (req, res) => {
     });
 };
 
-router.post("/", createItem);
-router.get("/", getItems);
-router.delete("/:itemId", deleteItem);
-router.put("/:itemId/likes", likeItem);
-router.delete("/:itemId/likes", dislikeItem);
-
-module.exports = router;
+module.exports = {
+  createItem,
+  getItems,
+  deleteItem,
+  likeItem,
+  dislikeItem,
+};
