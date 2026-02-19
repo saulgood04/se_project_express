@@ -13,11 +13,12 @@ const {
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() =>
-      res
+    .catch((err) => {
+      console.log(err);
+      return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" })
-    );
+        .send({ message: "An error has occurred on the server" });
+    });
 };
 
 const createUser = async (req, res) => {
